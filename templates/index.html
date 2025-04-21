@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome to Habit Tracker{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row align-items-center">
+        <div class="col-lg-6 mb-5 mb-lg-0">
+            <h1 class="display-3 fw-bold">Build Better Habits</h1>
+            <p class="lead mb-4">Track your daily habits, build streaks, and improve your life one day at a time.</p>
+            <div class="d-grid gap-3 d-md-flex">
+                <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg px-4">
+                    <i class="fas fa-user-plus me-2"></i>Get Started
+                </a>
+                <a href="{{ url_for('auth.login') }}" class="btn btn-outline-secondary btn-lg px-4">
+                    <i class="fas fa-sign-in-alt me-2"></i>Sign In
+                </a>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="text-center">
+                <img src="https://via.placeholder.com/600x400?text=Habit+Tracker" alt="Habit Tracker" class="img-fluid rounded shadow">
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-5 pt-5">
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center py-4">
+                    <i class="fas fa-check-circle fa-4x text-primary mb-3"></i>
+                    <h4>Track Daily</h4>
+                    <p class="text-muted">Log your habits daily to maintain consistency</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center py-4">
+                    <i class="fas fa-fire fa-4x text-danger mb-3"></i>
+                    <h4>Build Streaks</h4>
+                    <p class="text-muted">Stay motivated by building and maintaining streaks</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center py-4">
+                    <i class="fas fa-calendar-check fa-4x text-success mb-3"></i>
+                    <h4>Form Habits</h4>
+                    <p class="text-muted">Turn daily actions into permanent habits</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}About - Habit Tracker{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0">About Habit Tracker</h3>
+            </div>
+            <div class="card-body">
+                <h4 class="mb-4">Build Better Habits, One Day at a Time</h4>
+                
+                <p class="lead">
+                    Habit Tracker is a simple web application designed to help you build and maintain positive habits through consistent tracking and visualization.
+                </p>
+                
+                <hr>
+                
+                <h5 class="mb-3">How it Works</h5>
+                <ol>
+                    <li class="mb-2"><strong>Create Habits</strong> - Start by adding the habits you want to track daily</li>
+                    <li class="mb-2"><strong>Check-in Daily</strong> - Log your completion of each habit every day</li>
+                    <li class="mb-2"><strong>Build Streaks</strong> - Watch your streak grow as you maintain consistency</li>
+                    <li class="mb-2"><strong>Add Notes</strong> - Optionally add notes to track your progress or feelings</li>
+                    <li class="mb-2"><strong>Stay Consistent</strong> - Don't break the chain!</li>
+                </ol>
+                
+                <hr>
+                
+                <h5 class="mb-3">The Science Behind Habit Formation</h5>
+                <p>
+                    Research shows it takes anywhere from 18 to 254 days to form a new habit, with an average of 66 days 
+                    for a behavior to become automatic. Consistency is key - tracking your habits visually helps maintain 
+                    motivation and creates a sense of achievement.
+                </p>
+                
+                <div class="alert alert-info mt-4">
+                    <h6 class="alert-heading">Tip: The 2-Day Rule</h6>
+                    <p class="mb-0">
+                        Never miss a habit two days in a row. Missing one day is a mistake; 
+                        missing two days is the start of a new habit.
+                    </p>
+                </div>
+                
+                <div class="text-center mt-5">
+                    <a href="{{ url_for('main.home') }}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-chevron-left me-2"></i>Back to Dashboard
+                    </a>
+                </div>
+            </div>
+            <div class="card-footer text-center text-muted">
+                <p class="mb-0">Built with Python, Flask, and Bootstrap</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

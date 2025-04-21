@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block title %}History - {{ habit.name }} - Habit Tracker{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <a href="{{ url_for('habit.habit_detail', id=habit.id) }}" class="btn btn-outline-secondary mb-3">
+            <i class="fas fa-arrow-left me-2"></i>Back to Habit
+        </a>
+        <h1>
+            {% if habit.icon %}
+                <i class="fas fa-{{ habit.icon }}" style="color: {{ habit.color }}"></i>
+            {% endif %}
+            {{ habit.name }} - History
+        </h1>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">
+            <i class="fas fa-calendar-alt me-2"></i>
+            Complete History
+        </h5>
+    </div>
+    <div class="card-body">
+        {% if logs %}
+            <div class="timeline">
+                {% for log in logs %}
+                    <div class="card mb-3 border-{% if loop.first %}success{% else %}light{% endif %}">
+                        <div class="card-header bg-{% if loop.first %}success{% else %}light{% endif %} {% if loop.first %}text-white{% endif %}">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-calendar-check me-2"></i>
+                                    {{ log.date.strftime('%A, %B %d, %Y') }}
+                                </h5>
+                                {% if loop.first %}
+                                    <span class="badge bg-white text-success">Today</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            {% if log.note %}
+                                <p>{{ log.note }}</p>
+                            {% else %}
+                                <p class="text-muted fst-italic">No notes for this day.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Simple Calendar View -->
+            <div class="mt-5">
+                <h3>Calendar View</h3>
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Sun</th>
+                                <th>Mon</th>
+                                <th>Tue</th>
+                                <th>Wed</th>
+                                <th>Thu</th>
+                                <th>Fri</th>
+                                <th>Sat</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- We'll generate this with JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-calendar-times fa-4x text-muted mb-3"></i>
+                <h3>No history yet</h3>
+                <p class="text-muted">You haven't logged this habit yet.</p>
+                <a href="{{ url_for('habit.habit_detail', id=habit.id) }}" class="btn btn-primary mt-3">
+                    <i class="fas fa-check me-2"></i>Check-in Now
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% if logs %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Convert logs to a set of dates for easier lookup
+        const logDates = new Set([
+            {% for log in logs %}
+                "{{ log.date.strftime('%Y-%m-%d') }}",
+            {% endfor %}
+        ]);
+        
+        // Get current date information
+        const today = new Date();
+        const currentMonth = today.getMonth();
+        const currentYear = today.getFullYear();
+        
+        // Create date object for the first day of current month
+        const firstDay = new Date(currentYear, currentMonth, 1);
+        const startingDay = firstDay.getDay(); // 0 = Sunday, 1 = Monday, etc.
+        
+        // Get days in month
+        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+        
+        // Generate calendar
+        let calendarHtml = '';
+        let day = 1;
+        
+        // Create weeks
+        for (let i = 0; i < 6; i++) {
+            // Break if we've already used all days
+            if (day > daysInMonth) break;
+            
+            // Create a row
+            calendarHtml += '<tr>';
+            
+            // Fill in the days
+            for (let j = 0; j < 7; j++) {
+                if (i === 0 && j < startingDay) {
+                    // Empty cells before the first day
+                    calendarHtml += '<td></td>';
+                } else if (day > daysInMonth) {
+                    // Empty cells after the last day
+                    calendarHtml += '<td></td>';
+                } else {
+                    // Format date for comparison
+                    const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                    
+                    // Check if this day has a log
+                    const hasLog = logDates.has(dateStr);
+                    
+                    // Style based on logged status and if it's today
+                    const isToday = day === today.getDate() && 
+                                    currentMonth === today.getMonth() && 
+                                    currentYear === today.getFullYear();
+                    
+                    let cellClass = '';
+                    if (isToday) cellClass = 'bg-primary text-white';
+                    else if (hasLog) cellClass = 'bg-success text-white';
+                    
+                    calendarHtml += `<td class="${cellClass}" style="text-align: center;">
+                                        ${day}
+                                        ${hasLog ? '<br><i class="fas fa-check"></i>' : ''}
+                                    </td>`;
+                    day++;
+                }
+            }
+            
+            calendarHtml += '</tr>';
+        }
+        
+        document.querySelector('table tbody').innerHTML = calendarHtml;
+    });
+</script>
+{% endif %}
+{% endblock %}

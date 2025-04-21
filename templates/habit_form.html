@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block title %}New Habit - Habit Tracker{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-colorpicker@3.4.0/dist/css/bootstrap-colorpicker.min.css">
+<style>
+    .color-btn, .custom-color-btn {
+        width: 40px; 
+        height: 40px; 
+        border-radius: 50%;
+        margin: 5px;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .color-btn:hover, .custom-color-btn:hover {
+        transform: scale(1.1);
+        box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+    
+    .color-btn.active, .custom-color-btn.active {
+        border: 3px solid #000 !important;
+        transform: scale(1.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Create New Habit</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('habit.new_habit') }}">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Habit Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="name" name="name" required 
+                               placeholder="What habit do you want to track?">
+                        <div class="form-text">
+                            Examples: "Read 20 pages", "Drink 8 glasses of water", "Exercise for 30 minutes"
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="color" class="form-label">Choose Color</label>
+                        <input type="hidden" id="color" name="color" value="#3498db">
+                        
+                        <div class="mt-2 d-flex flex-wrap justify-content-center">
+                            <button type="button" class="btn color-btn active" data-color="#3498db" style="background-color: #3498db;"></button>
+                            <button type="button" class="btn color-btn" data-color="#2ecc71" style="background-color: #2ecc71;"></button>
+                            <button type="button" class="btn color-btn" data-color="#e74c3c" style="background-color: #e74c3c;"></button>
+                            <button type="button" class="btn color-btn" data-color="#f39c12" style="background-color: #f39c12;"></button>
+                            <button type="button" class="btn color-btn" data-color="#9b59b6" style="background-color: #9b59b6;"></button>
+                            <button type="button" class="btn color-btn" data-color="#1abc9c" style="background-color: #1abc9c;"></button>
+                            <button type="button" class="btn color-btn" data-color="#34495e" style="background-color: #34495e;"></button>
+                            <button type="button" class="btn color-btn" data-color="#e67e22" style="background-color: #e67e22;"></button>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="icon" class="form-label">Icon (Optional)</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i id="selected-icon" class="fas fa-book"></i></span>
+                            <select class="form-select" id="icon" name="icon">
+                                <option value="book">Book</option>
+                                <option value="dumbbell">Exercise</option>
+                                <option value="tint">Water</option>
+                                <option value="bed">Sleep</option>
+                                <option value="apple-alt">Healthy Eating</option>
+                                <option value="journal-whills">Journal</option>
+                                <option value="smoking-ban">No Smoking</option>
+                                <option value="laptop-code">Coding</option>
+                                <option value="language">Language Learning</option>
+                                <option value="meditation">Meditation</option>
+                                <option value="clock">Wake Up Early</option>
+                                <option value="sun">Morning Routine</option>
+                                <option value="walking">Walking</option>
+                                <option value="pills">Medication/Vitamins</option>
+                                <option value="broom">Cleaning</option>
+                                <option value="spa">Self-Care</option>
+                                <option value="mobile-alt">Digital Detox</option>
+                                <option value="heart">Gratitude</option>
+                                <option value="tooth">Dental Care</option>
+                                <option value="shower">Shower</option>
+                                <option value="moon">Night Routine</option>
+                                <option value="tasks">Planning</option>
+                                <option value="pray">Mindfulness</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Create Habit
+                        </button>
+                        <a href="{{ url_for('main.home') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap-colorpicker@3.4.0/dist/js/bootstrap-colorpicker.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const nameInput = document.getElementById('name');
+        const iconSelect = document.getElementById('icon');
+        const selectedIcon = document.getElementById('selected-icon');
+        const colorInput = document.getElementById('color');
+        
+        document.querySelectorAll('.color-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const color = this.dataset.color;
+                colorInput.value = color;
+                updateActiveColorButton(color);
+            });
+        });
+        
+        iconSelect.addEventListener('change', function() {
+            selectedIcon.className = 'fas fa-' + this.value;
+        });
+        
+        function updateActiveColorButton(color) {
+            document.querySelectorAll('.color-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            const activeBtn = document.querySelector(`.color-btn[data-color="${color}"]`);
+            if (activeBtn) {
+                activeBtn.classList.add('active');
+            }
+        }
+    });
+</script>
+{% endblock %}
