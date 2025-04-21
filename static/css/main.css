@@ -1,0 +1,30 @@
+/* General styles for the habit tracker application */
+.habit-card {
+    transition: transform 0.2s;
+}
+.habit-card:hover {
+    transform: translateY(-5px);
+}
+.streak-fire {
+    color: orange;
+}
+.at-risk {
+    border-left: 5px solid #dc3545 !important;
+}
+
+/* Custom classes for dynamic color styling */
+.habit-icon {
+    /* Will be overridden by inline styles */
+    color: inherit;
+}
+.habit-header {
+    /* Will be overridden by inline styles */
+    background-color: #3498db;
+    color: white;
+}
+
+/* Remove these unused classes */
+/* Habit-specific styling - will be overridden by dynamic styles */
+/* .habit-icon-dynamic,.habit-header-dynamic {
+    Base styles that will be customized per habit via inline styles
+} */
