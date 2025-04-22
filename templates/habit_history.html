@@ -17,10 +17,110 @@
     </div>
 </div>
 
-<div class="card shadow-sm">
+<ul class="nav nav-tabs mb-4" id="historyTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="monthly-tab" data-bs-toggle="tab" 
+                data-bs-target="#monthly" type="button" role="tab" 
+                aria-controls="monthly" aria-selected="true">Monthly View</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="yearly-tab" data-bs-toggle="tab" 
+                data-bs-target="#yearly" type="button" role="tab" 
+                aria-controls="yearly" aria-selected="false">Yearly Progress</button>
+    </li>
+</ul>
+
+<div class="tab-content" id="historyTabsContent">
+    <div class="tab-pane fade show active" id="monthly" role="tabpanel" aria-labelledby="monthly-tab">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-calendar-alt me-2"></i>
+                        Monthly Calendar
+                    </h5>
+                    <div class="btn-group">
+                        <button type="button" id="prev-month" class="btn btn-sm btn-light">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <span id="current-month-display" class="btn btn-sm btn-light"></span>
+                        <button type="button" id="next-month" class="btn btn-sm btn-light">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                {% if logs %}
+                    <!-- Monthly Calendar View -->
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Sun</th>
+                                    <th>Mon</th>
+                                    <th>Tue</th>
+                                    <th>Wed</th>
+                                    <th>Thu</th>
+                                    <th>Fri</th>
+                                    <th>Sat</th>
+                                </tr>
+                            </thead>
+                            <tbody id="calendar-body">
+                                <!-- We'll generate this with JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-calendar-times fa-4x text-muted mb-3"></i>
+                        <h3>No history yet</h3>
+                        <p class="text-muted">You haven't logged this habit yet.</p>
+                        <a href="{{ url_for('habit.habit_detail', id=habit.id) }}" class="btn btn-primary mt-3">
+                            <i class="fas fa-check me-2"></i>Check-in Now
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="tab-pane fade" id="yearly" role="tabpanel" aria-labelledby="yearly-tab">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-line me-2"></i>
+                        Yearly Progress
+                    </h5>
+                    <select id="year-selector" class="form-select form-select-sm" style="width: auto;">
+                        <!-- Year options will be generated here -->
+                    </select>
+                </div>
+            </div>
+            <div class="card-body">
+                {% if logs %}
+                    <div class="yearly-calendar">
+                        <div id="contribution-graph" class="contribution-graph">
+                            <!-- Will be generated with JavaScript -->
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-chart-area fa-4x text-muted mb-3"></i>
+                        <h3>No yearly data yet</h3>
+                        <p class="text-muted">Start building your habit history!</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm mt-4">
     <div class="card-header bg-primary text-white">
         <h5 class="mb-0">
-            <i class="fas fa-calendar-alt me-2"></i>
+            <i class="fas fa-list-alt me-2"></i>
             Complete History
         </h5>
     </div>
@@ -50,29 +150,6 @@
                     </div>
                 {% endfor %}
             </div>
-            
-            <!-- Simple Calendar View -->
-            <div class="mt-5">
-                <h3>Calendar View</h3>
-                <div class="table-responsive">
-                    <table class="table table-bordered">
-                        <thead>
-                            <tr>
-                                <th>Sun</th>
-                                <th>Mon</th>
-                                <th>Tue</th>
-                                <th>Wed</th>
-                                <th>Thu</th>
-                                <th>Fri</th>
-                                <th>Sat</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- We'll generate this with JavaScript -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
         {% else %}
             <div class="text-center py-5">
                 <i class="fas fa-calendar-times fa-4x text-muted mb-3"></i>
@@ -87,77 +164,401 @@
 </div>
 {% endblock %}
 
+{% block extra_css %}
+<style>
+    /* Contribution graph styles */
+    .contribution-graph {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-top: 10px;
+        width: 100%;
+    }
+    
+    .month-container {
+        display: flex;
+        flex-direction: column;
+        margin: 0 5px 15px 5px;
+        min-width: 110px;
+        max-width: 130px;
+    }
+    
+    .month-days {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        grid-template-rows: auto;
+        grid-gap: 2px;
+    }
+    
+    .month-header {
+        text-align: center;
+        font-weight: bold;
+        margin-top: 5px;
+        color: #495057;
+        font-size: 12px;
+    }
+    
+    .day-cell {
+        width: 13px;
+        height: 13px;
+        border-radius: 2px;
+        border: 1px solid #e9ecef;
+        background-color: #f8f9fa;
+    }
+    
+    .day-completed {
+        background-color: #198754;  /* Bootstrap's success green */
+        border-color: #198754;
+    }
+    
+    .empty-cell {
+        background-color: transparent;
+        border: none;
+    }
+    
+    .year-navigation {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 5px;
+        margin-bottom: 15px;
+    }
+    
+    .year-btn {
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 14px;
+        cursor: pointer;
+        border: 1px solid #dee2e6;
+        background-color: #f8f9fa;
+        transition: all 0.2s;
+    }
+    
+    .year-btn:hover {
+        background-color: #e9ecef;
+    }
+    
+    .year-btn.active {
+        background-color: #198754;
+        color: white;
+        border-color: #198754;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .month-container {
+            min-width: 90px;
+            max-width: 100px;
+        }
+        
+        .day-cell {
+            width: 10px;
+            height: 10px;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .contribution-graph {
+            justify-content: flex-start;
+            overflow-x: auto;
+            flex-wrap: nowrap;
+            padding-bottom: 10px;
+        }
+        
+        .month-container {
+            flex: 0 0 auto;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block scripts %}
 {% if logs %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Convert logs to a set of dates for easier lookup
-        const logDates = new Set([
-            {% for log in logs %}
-                "{{ log.date.strftime('%Y-%m-%d') }}",
-            {% endfor %}
-        ]);
+        // Convert logs to an object with dates for easier lookup
+        const logDates = {};
+        {% for log in logs %}
+            logDates["{{ log.date.strftime('%Y-%m-%d') }}"] = {
+                date: "{{ log.date.strftime('%Y-%m-%d') }}",
+                note: `{{ log.note|default("No notes for this day.") }}`,
+                formattedDate: "{{ log.date.strftime('%A, %B %d, %Y') }}"
+            };
+        {% endfor %}
         
-        // Get current date information
-        const today = new Date();
-        const currentMonth = today.getMonth();
-        const currentYear = today.getFullYear();
+        // Get user creation date from the first habit log or use current year minus 2 years
+        const userStartDate = new Date(
+            {% if logs %}
+                "{{ logs[-1].date.strftime('%Y-%m-%d') }}"
+            {% else %}
+                new Date().getFullYear() - 2 + "-01-01"
+            {% endif %}
+        );
         
-        // Create date object for the first day of current month
-        const firstDay = new Date(currentYear, currentMonth, 1);
-        const startingDay = firstDay.getDay(); // 0 = Sunday, 1 = Monday, etc.
+        // Current view state
+        let viewState = {
+            month: new Date().getMonth(),
+            year: new Date().getFullYear(),
+            yearView: {
+                endDate: new Date(), // Today
+                startDate: new Date(), // Will be set to 1 year ago from today
+                viewMode: 'last365' // 'last365' or 'fullYear'
+            }
+        };
         
-        // Get days in month
-        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+        // Set start date to one year ago from today (exactly 365 days)
+        viewState.yearView.startDate.setDate(viewState.yearView.endDate.getDate() - 365);
         
-        // Generate calendar
-        let calendarHtml = '';
-        let day = 1;
+        // Initialize the calendar
+        updateMonthCalendar();
+        initYearlyView();
         
-        // Create weeks
-        for (let i = 0; i < 6; i++) {
-            // Break if we've already used all days
-            if (day > daysInMonth) break;
+        // Set up navigation for monthly view
+        document.getElementById('prev-month').addEventListener('click', function() {
+            viewState.month--;
+            if (viewState.month < 0) {
+                viewState.month = 11;
+                viewState.year--;
+            }
+            updateMonthCalendar();
+        });
+        
+        document.getElementById('next-month').addEventListener('click', function() {
+            viewState.month++;
+            if (viewState.month > 11) {
+                viewState.month = 0;
+                viewState.year++;
+            }
+            updateMonthCalendar();
+        });
+        
+        // Update the monthly calendar
+        function updateMonthCalendar() {
+            // Update the month/year display
+            const monthNames = ["January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"];
+            document.getElementById('current-month-display').textContent = 
+                `${monthNames[viewState.month]} ${viewState.year}`;
             
-            // Create a row
-            calendarHtml += '<tr>';
+            // Create date objects
+            const firstDay = new Date(viewState.year, viewState.month, 1);
+            const startingDay = firstDay.getDay();
+            const daysInMonth = new Date(viewState.year, viewState.month + 1, 0).getDate();
+            const today = new Date();
             
-            // Fill in the days
-            for (let j = 0; j < 7; j++) {
-                if (i === 0 && j < startingDay) {
-                    // Empty cells before the first day
-                    calendarHtml += '<td></td>';
-                } else if (day > daysInMonth) {
-                    // Empty cells after the last day
-                    calendarHtml += '<td></td>';
-                } else {
-                    // Format date for comparison
-                    const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                    
-                    // Check if this day has a log
-                    const hasLog = logDates.has(dateStr);
-                    
-                    // Style based on logged status and if it's today
-                    const isToday = day === today.getDate() && 
-                                    currentMonth === today.getMonth() && 
-                                    currentYear === today.getFullYear();
-                    
-                    let cellClass = '';
-                    if (isToday) cellClass = 'bg-primary text-white';
-                    else if (hasLog) cellClass = 'bg-success text-white';
-                    
-                    calendarHtml += `<td class="${cellClass}" style="text-align: center;">
-                                        ${day}
-                                        ${hasLog ? '<br><i class="fas fa-check"></i>' : ''}
-                                    </td>`;
-                    day++;
+            // Generate calendar
+            let calendarHtml = '';
+            let day = 1;
+            
+            // Create weeks
+            for (let i = 0; i < 6; i++) {
+                if (day > daysInMonth) break;
+                
+                calendarHtml += '<tr>';
+                
+                for (let j = 0; j < 7; j++) {
+                    if (i === 0 && j < startingDay) {
+                        // Empty cells before the first day
+                        calendarHtml += '<td></td>';
+                    } else if (day > daysInMonth) {
+                        // Empty cells after the last day
+                        calendarHtml += '<td></td>';
+                    } else {
+                        // Format date for comparison
+                        const dateStr = `${viewState.year}-${String(viewState.month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                        const hasLog = dateStr in logDates;
+                        
+                        // Style based on logged status and if it's today
+                        const isToday = day === today.getDate() && 
+                                        viewState.month === today.getMonth() && 
+                                        viewState.year === today.getFullYear();
+                        
+                        let cellClass = '';
+                        if (isToday) cellClass = 'bg-primary text-white';
+                        else if (hasLog) cellClass = 'bg-success text-white';
+                        
+                        const cellContent = hasLog ? 
+                            `${day}<br><i class="fas fa-check"></i>` : day;
+                            
+                        calendarHtml += `<td class="${cellClass}" style="text-align: center;">${cellContent}</td>`;
+                        day++;
+                    }
                 }
+                
+                calendarHtml += '</tr>';
             }
             
-            calendarHtml += '</tr>';
+            document.getElementById('calendar-body').innerHTML = calendarHtml;
         }
         
-        document.querySelector('table tbody').innerHTML = calendarHtml;
+        function initYearlyView() {
+            // Create year dropdown options
+            createYearDropdown();
+            
+            // Set up the change handler for the dropdown
+            document.getElementById('year-selector').addEventListener('change', function() {
+                const selectedOption = this.value;
+                
+                if (selectedOption === 'last365') {
+                    // Show exactly 365 days back from today
+                    viewState.yearView.viewMode = 'last365';
+                    viewState.yearView.endDate = new Date(); // Today
+                    viewState.yearView.startDate = new Date();
+                    viewState.yearView.startDate.setDate(viewState.yearView.endDate.getDate() - 365);
+                } else {
+                    // Show full calendar year
+                    viewState.yearView.viewMode = 'fullYear';
+                    const year = parseInt(selectedOption);
+                    const today = new Date();
+                    
+                    if (year === today.getFullYear()) {
+                        // For current year, only show up to today
+                        viewState.yearView.startDate = new Date(year, 0, 1);
+                        viewState.yearView.endDate = new Date(today);
+                    } else {
+                        // For past years, show the entire year
+                        viewState.yearView.startDate = new Date(year, 0, 1);
+                        viewState.yearView.endDate = new Date(year, 11, 31);
+                    }
+                }
+                
+                updateYearlyView();
+            });
+            
+            // Default view: last 365 days
+            updateYearlyView();
+        }
+        
+        function createYearDropdown() {
+            const yearSelector = document.getElementById('year-selector');
+            yearSelector.innerHTML = '';
+            
+            // Get the available years based on user data
+            const earliestYear = Math.max(userStartDate.getFullYear(), 2023);
+            const currentYear = new Date().getFullYear();
+            
+            // Add "Last 365 days" option
+            const last365Option = document.createElement('option');
+            last365Option.value = 'last365';
+            last365Option.textContent = 'Last 365 days';
+            last365Option.selected = true;
+            yearSelector.appendChild(last365Option);
+            
+            // Add year options
+            for (let year = currentYear; year >= earliestYear; year--) {
+                const yearOption = document.createElement('option');
+                yearOption.value = year;
+                yearOption.textContent = year;
+                yearSelector.appendChild(yearOption);
+            }
+        }
+        
+        function updateYearlyView() {
+            const contributionGraph = document.getElementById('contribution-graph');
+            contributionGraph.innerHTML = '';
+            
+            // Group months by starting from the startDate
+            const months = generateMonthsInRange(viewState.yearView.startDate, viewState.yearView.endDate);
+            
+            // Create and append each month
+            months.forEach(month => {
+                const monthContainer = document.createElement('div');
+                monthContainer.className = 'month-container';
+                
+                // Days grid
+                const monthDays = document.createElement('div');
+                monthDays.className = 'month-days';
+                
+                // Add empty cells for days before first day of month
+                for (let i = 0; i < month.firstDayOfMonth; i++) {
+                    const emptyCell = document.createElement('div');
+                    emptyCell.className = 'day-cell empty-cell';
+                    monthDays.appendChild(emptyCell);
+                }
+                
+                // Add days of month
+                for (let day = 1; day <= month.daysInMonth; day++) {
+                    const currentDate = new Date(month.year, month.monthIndex, day);
+                    
+                    // Skip days outside the date range
+                    if (currentDate < viewState.yearView.startDate || 
+                        currentDate > viewState.yearView.endDate) {
+                        const emptyCell = document.createElement('div');
+                        emptyCell.className = 'day-cell empty-cell';
+                        monthDays.appendChild(emptyCell);
+                        continue;
+                    }
+                    
+                    const dateStr = `${month.year}-${String(month.monthIndex + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                    const hasLog = dateStr in logDates;
+                    
+                    const dayCell = document.createElement('div');
+                    dayCell.className = 'day-cell';
+                    if (hasLog) {
+                        dayCell.className += ' day-completed';
+                        
+                        // Add tooltip
+                        dayCell.setAttribute('data-bs-toggle', 'tooltip');
+                        dayCell.setAttribute('data-bs-placement', 'top');
+                        dayCell.setAttribute('title', logDates[dateStr].formattedDate);
+                    }
+                    
+                    monthDays.appendChild(dayCell);
+                }
+                
+                monthContainer.appendChild(monthDays);
+                
+                // Month header (at the bottom)
+                const monthHeader = document.createElement('div');
+                monthHeader.className = 'month-header';
+                monthHeader.textContent = month.name;
+                monthContainer.appendChild(monthHeader);
+                
+                contributionGraph.appendChild(monthContainer);
+            });
+            
+            // Initialize tooltips
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        }
+        
+        // Helper function to generate months in the given date range
+        function generateMonthsInRange(startDate, endDate) {
+            const months = [];
+            const monthNames = ["January", "February", "March", "April", "May", "June",
+                                "July", "August", "September", "October", "November", "December"];
+            const shortMonthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                                    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            
+            // Start with the first day of the month containing startDate
+            let currentDate = new Date(startDate);
+            currentDate.setDate(1);
+            
+            // Loop through months until we reach the month containing endDate
+            while (currentDate <= endDate) {
+                const year = currentDate.getFullYear();
+                const monthIndex = currentDate.getMonth();
+                
+                const firstDayOfMonth = new Date(year, monthIndex, 1).getDay();
+                const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+                
+                months.push({
+                    name: shortMonthNames[monthIndex],
+                    fullName: monthNames[monthIndex],
+                    monthIndex: monthIndex,
+                    year: year,
+                    firstDayOfMonth: firstDayOfMonth,
+                    daysInMonth: daysInMonth
+                });
+                
+                // Move to next month
+                currentDate.setMonth(currentDate.getMonth() + 1);
+            }
+            
+            return months;
+        }
     });
 </script>
 {% endif %}
