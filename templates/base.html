@@ -136,6 +136,34 @@
                 }
             });
         });
+
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const text = "Habit Tracker";
+            const typewriterElement = document.getElementById('typewriter');
+            const iconElement = document.getElementById('habit-icon');
+            const container = typewriterElement.closest('.text-center');
+            let charIndex = 0;
+            
+            function typeWriter() {
+                if (charIndex < text.length) {
+                    typewriterElement.textContent += text.charAt(charIndex);
+                    charIndex++;
+                    setTimeout(typeWriter, 130); 
+                } else {
+                    // Add class to hide the cursor
+                    container.classList.add('typing-complete');
+                    // Show the icon with fade in
+                    setTimeout(() => {
+                        iconElement.classList.add('icon-visible');
+                    }, 500); // Wait 500ms after typing before showing the icon
+                }
+            }
+            
+            // Start the typewriter effect
+            setTimeout(typeWriter, 800); // Short delay before typing starts
+        });
+        
     </script>
     {% block scripts %}{% endblock %}
 </body>

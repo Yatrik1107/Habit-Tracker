@@ -171,3 +171,43 @@ footer {
     border-radius: 12px;
     padding: 5px 10px;
 }
+
+.icon-hidden {
+    opacity: 0;
+    transition: opacity 1.5s ease-in-out;
+}
+
+.icon-visible {
+    opacity: 1;
+    animation: pulse 2s infinite ease-in-out;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+#typewriter::after {
+    content: '|';
+    animation: cursor-blink 1s step-end infinite;
+    font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+.typewriter-container {
+    font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-size: 3.5rem; 
+    font-weight: 800; 
+    color: var(--color-text); 
+}
+
+/* This class will hide the cursor */
+.typing-complete #typewriter::after {
+    content: '';
+    display: none;
+}
+
+@keyframes cursor-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
